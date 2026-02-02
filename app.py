@@ -518,7 +518,7 @@ def render_data_viz_page():
                 st.warning("**⚠️ Key Finding 2: Redemption Gap**")
                 st.markdown("""
                 **Issue:** Redemption rate only 42% of issuance  
-                **Opportunity:** $500K potential revenue increase  
+                **Opportunity:** 500K potential revenue increase  
                 **Action:** Targeted redemption campaigns
                 """)
                 st.metric("Redemption Rate", "42%", "-8% target", delta_color="inverse")
@@ -548,7 +548,7 @@ def render_data_viz_page():
             st.markdown("#### 📊 Export Performance Metrics")
             col1, col2, col3 = st.columns(3)
             with col1:
-                st.metric("Total Export Value (2024)", "$128M", "+12% YoY", 
+                st.metric("Total Export Value (2024)", "128M", "+12% YoY", 
                          help="Total export value in 2024")
             with col2:
                 st.metric("Top Destination", "Netherlands", "32% market share",
@@ -615,7 +615,7 @@ def render_data_viz_page():
                 st.markdown("""
                 **🌏 Emerging Markets**
                 - Vietnam imports grew 45% YoY
-                - China market potential: $25M
+                - China market potential: 25M
                 - ASEAN region: 15% CAGR
                 """)
             
