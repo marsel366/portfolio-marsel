@@ -18,138 +18,144 @@ if 'dark_mode' not in st.session_state:
 if 'contact_submitted' not in st.session_state:
     st.session_state.contact_submitted = False
 
-# ==================== HIGH CONTRAST CSS ====================
+# ==================== FIXED HIGH CONTRAST CSS ====================
 def load_css():
-    """Load custom CSS styles with high contrast"""
+    """Load custom CSS styles with high contrast - FIXED VERSION"""
     base_css = """
     <style>
-    /* ===== HIGH CONTRAST BASE STYLES ===== */
-    .main {
-        background-color: #ffffff !important;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-        color: white !important;
+    /* ===== LIGHT MODE (DEFAULT) ===== */
+    :root {
+        --primary-color: #18338C;
+        --secondary-color: #2563eb;
+        --accent-color: #3b82f6;
+        --text-color: #000000;
+        --bg-color: #ffffff;
+        --card-bg: #ffffff;
+        --border-color: #18338C;
+        --tag-bg: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+        --sidebar-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+        --sidebar-text: #ffffff;
     }
     
-    /* ===== HIGH CONTRAST CARDS ===== */
+    /* ===== BASE STYLES ===== */
+    .main {
+        background-color: var(--bg-color) !important;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        color: var(--text-color) !important;
+    }
+    
+    /* ===== CARD STYLES ===== */
     .main [data-testid="stVerticalBlockBorderWrapper"] {
-        background: #ffffff !important;
+        background: var(--card-bg) !important;
         padding: 32px !important;
         border-radius: 16px !important;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
         margin-bottom: 32px !important;
-        border: 2px solid ##18338C !important;
+        border: 2px solid var(--border-color) !important;
         transition: all 0.3s ease !important;
+        color: var(--text-color) !important;
     }
     
     .main [data-testid="stVerticalBlockBorderWrapper"]:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(30, 64, 175, 0.2) !important;
-        border-color: #2563eb !important;
+        box-shadow: 0 8px 30px rgba(30, 64, 175, 0.12) !important;
+        border-color: var(--secondary-color) !important;
     }
     
-    /* Border color for cards */
-    [data-testid="stVerticalBlockBorderWrapper"] {
-        border-color: ##18338C !important;
-    }
-    
-    /* ===== HIGH CONTRAST SIDEBAR ===== */
+    /* ===== SIDEBAR ===== */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
-        border-right: 3px solid #2563eb !important;
+        background: var(--sidebar-bg) !important;
+        border-right: 3px solid var(--secondary-color) !important;
     }
     
     [data-testid="stSidebar"] * {
-        color: #ffffff !important;
+        color: var(--sidebar-text) !important;
     }
     
-    /* ===== HIGH CONTRAST TYPOGRAPHY ===== */
+    /* ===== TYPOGRAPHY ===== */
     h1 {
-        color: ##18338C !important;
+        color: var(--primary-color) !important;
         font-weight: 900 !important;
         margin-bottom: 1rem !important;
         font-size: 2.5rem !important;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     }
     
     h2 {
-        color: ##18338C !important;
+        color: var(--primary-color) !important;
         font-weight: 800 !important;
         font-size: 2rem !important;
-        border-bottom: 3px solid #3b82f6;
+        border-bottom: 3px solid var(--accent-color);
         padding-bottom: 10px;
         margin-bottom: 1.5rem !important;
     }
     
     h3 {
-        color: #2563eb !important;
+        color: var(--secondary-color) !important;
         font-weight: 700 !important;
         font-size: 1.5rem !important;
         margin-bottom: 1rem !important;
     }
     
     h4 {
-        color: #3b82f6 !important;
+        color: var(--accent-color) !important;
         font-weight: 600 !important;
         font-size: 1.25rem !important;
     }
     
-    p, span, div, .stMarkdown, .stMarkdown p {
-        color: white !important;
+    /* TEXT COLOR FIX - Explicit untuk semua elemen teks */
+    .main .stMarkdown,
+    .main .stMarkdown p,
+    .main .stMarkdown div,
+    .main .stMarkdown span,
+    .main .stMarkdown li,
+    .main p,
+    .main span,
+    .main div:not([class*="st-"]),
+    .main li {
+        color: var(--text-color) !important;
         font-weight: 500 !important;
         line-height: 1.6 !important;
     }
     
     strong, b {
-        color: #dc2626 !important;
+        color: var(--primary-color) !important;
         font-weight: 700 !important;
     }
     
-    /* ===== HIGH CONTRAST METRICS ===== */
+    /* ===== METRICS ===== */
     [data-testid="stMetricValue"] {
         font-size: 2.5rem !important;
         font-weight: 900 !important;
-        color: ##18338C !important;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        color: var(--primary-color) !important;
     }
     
     [data-testid="stMetricLabel"] {
-        color: #374151 !important;
+        color: #4b5563 !important;
         font-weight: 600 !important;
         font-size: 1.1rem !important;
     }
     
-    [data-testid="stMetricDelta"] {
-        font-weight: 700 !important;
-        font-size: 1rem !important;
-    }
-    
-    /* ===== HIGH CONTRAST BUTTONS ===== */
+    /* ===== BUTTONS ===== */
     .stButton > button {
-        background: linear-gradient(90deg, ##18338C 0%, #2563eb 100%) !important;
+        background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
         color: white !important;
-        border: 2px solid #1e3a8a !important;
+        border: 2px solid var(--primary-color) !important;
         border-radius: 10px !important;
         padding: 12px 32px !important;
         font-weight: 700 !important;
         transition: all 0.3s ease !important;
-        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3) !important;
+        box-shadow: 0 4px 12px rgba(24, 51, 140, 0.3) !important;
     }
     
     .stButton > button:hover {
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4) !important;
-        border-color: #2563eb !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(24, 51, 140, 0.4) !important;
+        border-color: var(--secondary-color) !important;
     }
     
-    /* Link buttons */
-    .stLinkButton > button {
-        background: linear-gradient(90deg, #059669 0%, #10b981 100%) !important;
-        border: 2px solid #047857 !important;
-    }
-    
-    /* ===== HIGH CONTRAST TAGS ===== */
+    /* ===== TAGS ===== */
     .tag {
-        background: linear-gradient(90deg, #3b82f6 0%, white 100%) !important;
+        background: var(--tag-bg) !important;
         color: white !important;
         padding: 6px 16px !important;
         border-radius: 20px !important;
@@ -158,14 +164,14 @@ def load_css():
         font-size: 0.9rem !important;
         display: inline-block !important;
         font-weight: 600 !important;
-        border: 1px solid #1d4ed8 !important;
+        border: 1px solid var(--primary-color) !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
     }
     
-    /* ===== HIGH CONTRAST TABS ===== */
+    /* ===== TABS ===== */
     .stTabs [data-baseweb="tab-list"] {
         gap: 10px !important;
-        border-bottom: 2px solid ##18338C !important;
+        border-bottom: 2px solid var(--border-color) !important;
         padding-bottom: 5px !important;
     }
     
@@ -173,26 +179,26 @@ def load_css():
         border-radius: 10px 10px 0 0 !important;
         padding: 12px 24px !important;
         font-weight: 600 !important;
-        background-color: #313640 !important;
-        color: #374151 !important;
+        background-color: #f3f4f6 !important;
+        color: #4b5563 !important;
         border: 2px solid #d1d5db !important;
     }
     
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(90deg, ##18338C 0%, #2563eb 100%) !important;
+        background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
         color: white !important;
-        border-color: ##18338C !important;
+        border-color: var(--primary-color) !important;
     }
     
-    /* ===== HIGH CONTRAST DIVIDERS ===== */
+    /* ===== DIVIDERS ===== */
     hr, .stDivider {
         border: none !important;
-        border-top: 3px solid ##18338C !important;
+        border-top: 3px solid var(--border-color) !important;
         margin: 2rem 0 !important;
         opacity: 1 !important;
     }
     
-    /* ===== HIGH CONTRAST SOCIAL LINKS ===== */
+    /* ===== SOCIAL LINKS ===== */
     .social-link {
         display: flex !important;
         align-items: center !important;
@@ -204,119 +210,34 @@ def load_css():
         transition: all 0.3s ease !important;
         margin-bottom: 10px !important;
         border: 2px solid rgba(37, 99, 235, 0.3) !important;
-        color: #ffffff !important;
+        color: var(--sidebar-text) !important;
         font-weight: 600 !important;
     }
     
     .social-link:hover {
         background: rgba(37, 99, 235, 0.3) !important;
         transform: translateX(5px) !important;
-        border-color: #2563eb !important;
+        border-color: var(--secondary-color) !important;
     }
     
-    /* ===== HIGH CONTRAST ALERTS ===== */
-    .stAlert {
-        border: 2px solid !important;
-        border-radius: 10px !important;
-        font-weight: 600 !important;
-    }
-    
-    .stSuccess {
-        background-color: #d1fae5 !important;
-        border-color: #10b981 !important;
-        color: #065f46 !important;
-    }
-    
-    .stWarning {
-        background-color: #fef3c7 !important;
-        border-color: #f59e0b !important;
-        color: #92400e !important;
-    }
-    
-    .stInfo {
-        background-color: #dbeafe !important;
-        border-color: #3b82f6 !important;
-        color: ##18338C !important;
-    }
-    
-    .stError {
-        background-color: #fee2e2 !important;
-        border-color: #ef4444 !important;
-        color: #991b1b !important;
-    }
-    
-    /* ===== HIGH CONTRAST FORMS ===== */
+    /* ===== FORMS ===== */
     .stTextInput > div > div > input,
     .stTextArea > div > div > textarea,
     .stSelectbox > div > div > div {
-        border: 2px solid ##18338C !important;
+        border: 2px solid var(--border-color) !important;
         border-radius: 8px !important;
         font-weight: 500 !important;
-        color: white !important;
+        color: var(--text-color) !important;
+        background-color: var(--card-bg) !important;
     }
     
     .stTextInput > div > div > input:focus,
     .stTextArea > div > div > textarea:focus {
-        border-color: #2563eb !important;
+        border-color: var(--secondary-color) !important;
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
     }
     
-    /* ===== HIGH CONTRAST CODE BLOCKS ===== */
-    .stCode {
-        background: #1e293b !important;
-        color: #e2e8f0 !important;
-        border: 2px solid #334155 !important;
-        border-radius: 8px !important;
-        padding: 16px !important;
-    }
-    
-    /* ===== DARK MODE - HIGH CONTRAST ===== */
-    .dark-mode .main {
-        background-color: #0f172a !important;
-        color: #ffffff !important;
-    }
-    
-    .dark-mode .main *:not([class*="st-"]):not(h1):not(h2):not(h3):not(h4) {
-        color: #e2e8f0 !important;
-    }
-    
-    .dark-mode [data-testid="stVerticalBlockBorderWrapper"] {
-        background: #1e293b !important;
-        border-color: #3b82f6 !important;
-        color: #e2e8f0 !important;
-    }
-    
-    .dark-mode h1 {
-        color: white !important;
-    }
-    
-    .dark-mode h2 {
-        color: #93c5fd !important;
-        border-bottom-color: #3b82f6 !important;
-    }
-    
-    .dark-mode h3 {
-        color: white !important;
-    }
-    
-    .dark-mode h4 {
-        color: #93c5fd !important;
-    }
-    
-    .dark-mode p, .dark-mode span, .dark-mode div {
-        color: #e2e8f0 !important;
-    }
-    
-    .dark-mode [data-testid="stMetricValue"] {
-        color: white !important;
-    }
-    
-    .dark-mode .tag {
-        background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%) !important;
-        color: white !important;
-    }
-    
-    /* ===== RESPONSIVE DESIGN ===== */
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
         .main [data-testid="stVerticalBlockBorderWrapper"] {
             padding: 24px !important;
@@ -335,26 +256,6 @@ def load_css():
             font-size: 1.5rem !important;
         }
     }
-    
-    /* ===== SCROLLBAR STYLING ===== */
-    ::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 5px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: #3b82f6;
-        border-radius: 5px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: #2563eb;
-    }
     </style>
     """
     
@@ -364,31 +265,85 @@ def load_css():
     if st.session_state.dark_mode:
         st.markdown("""
         <style>
+        :root {
+            --primary-color: #60a5fa;
+            --secondary-color: #3b82f6;
+            --accent-color: #93c5fd;
+            --text-color: #e2e8f0;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #3b82f6;
+            --tag-bg: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%);
+            --sidebar-bg: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            --sidebar-text: #e2e8f0;
+        }
+        
+        /* Dark mode specific fixes */
         .main {
-            background-color: #404042 !important;
+            background-color: var(--bg-color) !important;
         }
         
-        .main * {
-            color: #e2e8f0 !important;
+        .main [data-testid="stVerticalBlockBorderWrapper"] {
+            background-color: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
         }
         
-        [data-testid="stVerticalBlockBorderWrapper"] {
-            background: #1e293b !important;
-            border-color: #3b82f6 !important;
+        /* Ensure all text is visible in dark mode */
+        .main *:not([data-testid]) {
+            color: var(--text-color) !important;
         }
         
-        .stButton > button {
-            background: linear-gradient(90deg, #3b82f6 0%, white 100%) !important;
-            border-color: #1d4ed8 !important;
+        /* Fix for Streamlit specific elements */
+        .stMarkdown, .stMarkdown p, .stMarkdown div,
+        .stMarkdown span, .stMarkdown li,
+        .stAlert, .stAlert p,
+        .stExpander, .stExpander p,
+        .stTabs, .stTabs p {
+            color: var(--text-color) !important;
         }
         
-        /* Dark mode scrollbar */
-        ::-webkit-scrollbar-track {
-            background: #334155;
+        /* Fix metric colors */
+        [data-testid="stMetricValue"] {
+            color: var(--primary-color) !important;
         }
         
-        ::-webkit-scrollbar-thumb {
-            background: white;
+        [data-testid="stMetricLabel"] {
+            color: var(--text-color) !important;
+        }
+        
+        /* Fix tab colors */
+        .stTabs [data-baseweb="tab"] {
+            background-color: #334155 !important;
+            color: var(--text-color) !important;
+            border-color: #475569 !important;
+        }
+        
+        /* Fix caption text */
+        .stImage > div > p {
+            color: var(--text-color) !important;
+        }
+        
+        /* Fix info/warning/error boxes */
+        .stAlert {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+        
+        .stInfo {
+            background-color: rgba(59, 130, 246, 0.1) !important;
+            border-color: var(--accent-color) !important;
+            color: var(--text-color) !important;
+        }
+        
+        .stSuccess {
+            background-color: rgba(16, 185, 129, 0.1) !important;
+            border-color: #10b981 !important;
+            color: var(--text-color) !important;
+        }
+        
+        .stWarning {
+            background-color: rgba(245, 158, 11, 0.1) !important;
+            border-color: #f59e0b !important;
+            color: var(--text-color) !important;
         }
         </style>
         """, unsafe_allow_html=True)
@@ -848,9 +803,6 @@ def render_forecasting_page():
                 use_container_width=True
             )
 
-
-
-
 # ==================== MAIN APP ====================
 def main():
     """Main application function"""
@@ -865,7 +817,7 @@ def main():
             <div style="font-size: 40px; margin-bottom: 10px; color: white;">📊</div>
             <h2 style="margin: 0; color: #ffffff !important; font-weight: 900;">Marselinus Hindarto</h2>
             <p style="color: #93c5fd; margin: 5px 0; font-weight: 600;">Data Analyst Portfolio</p>
-            <div style="background: linear-gradient(90deg, #3b82f6 0%, white 100%); height: 3px; width: 80px; margin: 10px auto; border-radius: 2px;"></div>
+            <div style="background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%); height: 3px; width: 80px; margin: 10px auto; border-radius: 2px;"></div>
         </div>
         """, unsafe_allow_html=True)
         
