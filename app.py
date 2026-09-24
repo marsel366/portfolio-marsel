@@ -1,875 +1,494 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import pandas as pd
 import os
-from datetime import datetime
 
 # ==================== CONFIGURATION ====================
 st.set_page_config(
-    page_title="Marsel | Data Analyst Portfolio",
-    page_icon="📊",
+    page_title="Marsel | Portfolio",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # ==================== SESSION STATE ====================
 if 'dark_mode' not in st.session_state:
-    st.session_state.dark_mode = False
-if 'contact_submitted' not in st.session_state:
-    st.session_state.contact_submitted = False
+    st.session_state.dark_mode = True  # Default to Dark Mode for modern feel
 
-# ==================== FIXED HIGH CONTRAST CSS ====================
+# ==================== MODERN CSS STYLING ====================
 def load_css():
-    """Load custom CSS styles with high contrast - FIXED VERSION"""
+    """Load custom CSS styles with Modern Indigo & Teal Theme"""
+    
+    # Base CSS variables (Light Theme)
     base_css = """
     <style>
-    /* ===== LIGHT MODE (DEFAULT) ===== */
     :root {
-        --primary-color: #18338C;
-        --secondary-color: #2563eb;
-        --accent-color: #3b82f6;
-        --text-color: #000000;
-        --bg-color: #ffffff;
-        --card-bg: #ffffff;
-        --border-color: #18338C;
-        --tag-bg: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-        --sidebar-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-        --sidebar-text: #ffffff;
+        --primary: #4F46E5;       /* Indigo 600 */
+        --primary-light: #818CF8;
+        --secondary: #0D9488;     /* Teal 600 */
+        --accent: #F43F5E;        /* Rose 500 */
+        --bg-main: #F8FAFC;       /* Slate 50 */
+        --bg-card: #FFFFFF;
+        --text-main: #0F172A;     /* Slate 900 */
+        --text-muted: #475569;    /* Slate 600 */
+        --border-color: #E2E8F0;  /* Slate 200 */
+        --sidebar-bg: #0F172A;    /* Dark Sidebar for contrast */
+        --sidebar-text: #F8FAFC;
     }
-    
-    /* ===== BASE STYLES ===== */
+
+    /* ===== GLOBAL STYLES ===== */
     .main {
-        background-color: var(--bg-color) !important;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-        color: var(--text-color) !important;
+        background-color: var(--bg-main) !important;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
     }
     
-    /* ===== CARD STYLES ===== */
-    .main [data-testid="stVerticalBlockBorderWrapper"] {
-        background: var(--card-bg) !important;
-        padding: 32px !important;
-        border-radius: 16px !important;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-        margin-bottom: 32px !important;
-        border: 2px solid var(--border-color) !important;
-        transition: all 0.3s ease !important;
-        color: var(--text-color) !important;
+    .stApp {
+        background-color: var(--bg-main);
+    }
+
+    /* Override Text Colors */
+    .main p, .main span, .main div, .main li {
+        color: var(--text-main);
     }
     
-    .main [data-testid="stVerticalBlockBorderWrapper"]:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(30, 64, 175, 0.12) !important;
-        border-color: var(--secondary-color) !important;
-    }
-    
-    /* ===== SIDEBAR ===== */
-    [data-testid="stSidebar"] {
-        background: var(--sidebar-bg) !important;
-        border-right: 3px solid var(--secondary-color) !important;
-    }
-    
-    [data-testid="stSidebar"] * {
-        color: var(--sidebar-text) !important;
-    }
-    
-    /* ===== TYPOGRAPHY ===== */
-    h1 {
-        color: var(--primary-color) !important;
-        font-weight: 900 !important;
-        margin-bottom: 1rem !important;
-        font-size: 2.5rem !important;
-    }
-    
-    h2 {
-        color: var(--primary-color) !important;
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--primary) !important;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
         font-weight: 800 !important;
-        font-size: 2rem !important;
-        border-bottom: 3px solid var(--accent-color);
-        padding-bottom: 10px;
-        margin-bottom: 1.5rem !important;
+        letter-spacing: -0.5px;
     }
-    
-    h3 {
-        color: var(--secondary-color) !important;
-        font-weight: 700 !important;
-        font-size: 1.5rem !important;
-        margin-bottom: 1rem !important;
+
+    /* ===== CARD WIDGETS (Containers) ===== */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: var(--bg-card) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 24px !important;
+        padding: 30px !important;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05) !important;
+        transition: transform 0.3s ease, box-shadow 0.3s ease !important;
     }
-    
-    h4 {
-        color: var(--accent-color) !important;
-        font-weight: 600 !important;
-        font-size: 1.25rem !important;
+
+    [data-testid="stVerticalBlockBorderWrapper"]:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.15) !important;
+        border-color: var(--primary-light) !important;
     }
-    
-    /* TEXT COLOR FIX - Explicit untuk semua elemen teks */
-    .main .stMarkdown,
-    .main .stMarkdown p,
-    .main .stMarkdown div,
-    .main .stMarkdown span,
-    .main .stMarkdown li,
-    .main p,
-    .main span,
-    .main div:not([class*="st-"]),
-    .main li {
-        color: var(--text-color) !important;
-        font-weight: 500 !important;
-        line-height: 1.6 !important;
-    }
-    
-    strong, b {
-        color: var(--primary-color) !important;
-        font-weight: 700 !important;
-    }
-    
+
     /* ===== METRICS ===== */
     [data-testid="stMetricValue"] {
-        font-size: 2.5rem !important;
+        font-size: 2.2rem !important;
         font-weight: 900 !important;
-        color: var(--primary-color) !important;
+        color: var(--secondary) !important;
+        background: -webkit-linear-gradient(45deg, var(--secondary), var(--primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
     
     [data-testid="stMetricLabel"] {
-        color: #4b5563 !important;
+        color: var(--text-muted) !important;
         font-weight: 600 !important;
-        font-size: 1.1rem !important;
+        font-size: 1rem !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
-    
-    /* ===== BUTTONS ===== */
-    .stButton > button {
-        background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: white !important;
-        border: 2px solid var(--primary-color) !important;
-        border-radius: 10px !important;
-        padding: 12px 32px !important;
-        font-weight: 700 !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 12px rgba(24, 51, 140, 0.3) !important;
-    }
-    
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(24, 51, 140, 0.4) !important;
-        border-color: var(--secondary-color) !important;
-    }
-    
-    /* ===== TAGS ===== */
-    .tag {
-        background: var(--tag-bg) !important;
-        color: white !important;
-        padding: 6px 16px !important;
-        border-radius: 20px !important;
-        margin-right: 10px !important;
-        margin-bottom: 10px !important;
-        font-size: 0.9rem !important;
-        display: inline-block !important;
-        font-weight: 600 !important;
-        border: 1px solid var(--primary-color) !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-    }
-    
+
     /* ===== TABS ===== */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 10px !important;
+        gap: 20px;
         border-bottom: 2px solid var(--border-color) !important;
-        padding-bottom: 5px !important;
     }
     
     .stTabs [data-baseweb="tab"] {
-        border-radius: 10px 10px 0 0 !important;
-        padding: 12px 24px !important;
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: transparent !important;
+        border-radius: 8px 8px 0 0 !important;
+        gap: 1px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        color: var(--text-muted) !important;
         font-weight: 600 !important;
-        background-color: #f3f4f6 !important;
-        color: #4b5563 !important;
-        border: 2px solid #d1d5db !important;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: white !important;
-        border-color: var(--primary-color) !important;
-    }
-    
-    /* ===== DIVIDERS ===== */
-    hr, .stDivider {
         border: none !important;
-        border-top: 3px solid var(--border-color) !important;
-        margin: 2rem 0 !important;
-        opacity: 1 !important;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background-color: transparent !important;
+        color: var(--primary) !important;
+        border-bottom: 3px solid var(--primary) !important;
+    }
+
+    /* ===== SIDEBAR ===== */
+    [data-testid="stSidebar"] {
+        background-color: var(--sidebar-bg) !important;
+        border-right: 1px solid rgba(255,255,255,0.1) !important;
     }
     
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2, 
+    [data-testid="stSidebar"] h3, 
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] span {
+        color: var(--sidebar-text) !important;
+    }
+
     /* ===== SOCIAL LINKS ===== */
     .social-link {
-        display: flex !important;
-        align-items: center !important;
-        gap: 12px !important;
-        padding: 14px 18px !important;
-        background: rgba(37, 99, 235, 0.1) !important;
-        border-radius: 12px !important;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
         text-decoration: none !important;
-        transition: all 0.3s ease !important;
-        margin-bottom: 10px !important;
-        border: 2px solid rgba(37, 99, 235, 0.3) !important;
-        color: var(--sidebar-text) !important;
-        font-weight: 600 !important;
+        color: #F8FAFC !important;
+        font-weight: 600;
+        margin-bottom: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
     }
     
     .social-link:hover {
-        background: rgba(37, 99, 235, 0.3) !important;
-        transform: translateX(5px) !important;
-        border-color: var(--secondary-color) !important;
+        background: var(--primary);
+        transform: translateX(5px);
+        border-color: var(--primary);
+    }
+
+    /* ===== TAGS ===== */
+    .tech-tag {
+        background: rgba(79, 70, 229, 0.1);
+        color: var(--primary);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: inline-block;
+        margin: 4px;
+        border: 1px solid rgba(79, 70, 229, 0.2);
+    }
+
+    /* ===== BUTTONS ===== */
+    .stButton > button {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 10px 24px !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    .stButton > button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4) !important;
     }
     
-    /* ===== FORMS ===== */
-    .stTextInput > div > div > input,
-    .stTextArea > div > div > textarea,
-    .stSelectbox > div > div > div {
-        border: 2px solid var(--border-color) !important;
-        border-radius: 8px !important;
-        font-weight: 500 !important;
-        color: var(--text-color) !important;
-        background-color: var(--card-bg) !important;
-    }
-    
-    .stTextInput > div > div > input:focus,
-    .stTextArea > div > div > textarea:focus {
-        border-color: var(--secondary-color) !important;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
-    }
-    
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 768px) {
-        .main [data-testid="stVerticalBlockBorderWrapper"] {
-            padding: 24px !important;
-            margin-bottom: 24px !important;
-        }
-        
-        [data-testid="stMetricValue"] {
-            font-size: 2rem !important;
-        }
-        
-        h1 {
-            font-size: 2rem !important;
-        }
-        
-        h2 {
-            font-size: 1.5rem !important;
-        }
+    /* ===== DIVIDERS ===== */
+    hr {
+        border-top: 1px dashed var(--border-color) !important;
+        margin: 2.5rem 0 !important;
     }
     </style>
     """
     
-    st.markdown(base_css, unsafe_allow_html=True)
+    dark_css = """
+    <style>
+    :root {
+        --bg-main: #0B1120;       /* Midnight Blue */
+        --bg-card: #1E293B;       /* Slate 800 */
+        --text-main: #F8FAFC;     /* Slate 50 */
+        --text-muted: #94A3B8;    /* Slate 400 */
+        --border-color: #334155;  /* Slate 700 */
+        --primary: #818CF8;
+        --secondary: #2DD4BF;
+    }
     
-    # Add dark mode CSS if active
-    if st.session_state.dark_mode:
-        st.markdown("""
-        <style>
-        :root {
-            --primary-color: #60a5fa;
-            --secondary-color: #3b82f6;
-            --accent-color: #93c5fd;
-            --text-color: #e2e8f0;
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --border-color: #3b82f6;
-            --tag-bg: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%);
-            --sidebar-bg: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-            --sidebar-text: #e2e8f0;
-        }
-        
-        /* Dark mode specific fixes */
-        .main {
-            background-color: var(--bg-color) !important;
-        }
-        
-        .main [data-testid="stVerticalBlockBorderWrapper"] {
-            background-color: var(--card-bg) !important;
-            border-color: var(--border-color) !important;
-        }
-        
-        /* Ensure all text is visible in dark mode */
-        .main *:not([data-testid]) {
-            color: var(--text-color) !important;
-        }
-        
-        /* Fix for Streamlit specific elements */
-        .stMarkdown, .stMarkdown p, .stMarkdown div,
-        .stMarkdown span, .stMarkdown li,
-        .stAlert, .stAlert p,
-        .stExpander, .stExpander p,
-        .stTabs, .stTabs p {
-            color: var(--text-color) !important;
-        }
-        
-        /* Fix metric colors */
-        [data-testid="stMetricValue"] {
-            color: var(--primary-color) !important;
-        }
-        
-        [data-testid="stMetricLabel"] {
-            color: var(--text-color) !important;
-        }
-        
-        /* Fix tab colors */
-        .stTabs [data-baseweb="tab"] {
-            background-color: #334155 !important;
-            color: var(--text-color) !important;
-            border-color: #475569 !important;
-        }
-        
-        /* Fix caption text */
-        .stImage > div > p {
-            color: var(--text-color) !important;
-        }
-        
-        /* Fix info/warning/error boxes */
-        .stAlert {
-            background-color: rgba(255, 255, 255, 0.05) !important;
-        }
-        
-        .stInfo {
-            background-color: rgba(59, 130, 246, 0.1) !important;
-            border-color: var(--accent-color) !important;
-            color: var(--text-color) !important;
-        }
-        
-        .stSuccess {
-            background-color: rgba(16, 185, 129, 0.1) !important;
-            border-color: #10b981 !important;
-            color: var(--text-color) !important;
-        }
-        
-        .stWarning {
-            background-color: rgba(245, 158, 11, 0.1) !important;
-            border-color: #f59e0b !important;
-            color: var(--text-color) !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background: linear-gradient(145deg, #1E293B, #0F172A) !important;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    .tech-tag {
+        background: rgba(129, 140, 248, 0.15);
+        color: #818CF8;
+        border-color: rgba(129, 140, 248, 0.3);
+    }
+    </style>
+    """
 
-# ==================== UTILITY FUNCTIONS ====================
+    st.markdown(base_css, unsafe_allow_html=True)
+    if st.session_state.dark_mode:
+        st.markdown(dark_css, unsafe_allow_html=True)
+
+# ==================== UI COMPONENTS ====================
 def render_social_links():
-    """Render social media links in sidebar"""
     st.sidebar.markdown("### 🔗 Connect With Me")
-    
     social_links = [
-        ("📧", "Email", "mailto:marselinus95@gmail.com"),
-        ("💼", "LinkedIn", "https://www.linkedin.com/in/marselinus-hindarto-485b121bb/"),
-        ("💻", "GitHub", "https://github.com/marsel366"),
-        ("📊", "Tableau Public", "https://public.tableau.com/app/profile/marselinus.hindarto/vizzes")
+        ("", "Email", "mailto:marselinus95@gmail.com"),
+        ("", "LinkedIn", "https://www.linkedin.com/in/marselinus-hindarto-485b121bb/"),
+        ("", "GitHub", "https://github.com/marsel366"),
+        ("", "Tableau Public", "https://public.tableau.com/app/profile/marselinus.hindarto/vizzes")
     ]
-    
     for icon, name, url in social_links:
         st.sidebar.markdown(
             f'<a href="{url}" target="_blank" class="social-link">'
-            f'<span style="font-size:20px">{icon}</span>'
-            f'<span>{name}</span>'
-            f'</a>',
+            f'<span style="font-size:18px">{icon}</span><span>{name}</span></a>',
             unsafe_allow_html=True
         )
 
-# ==================== HIGH CONTRAST PAGE COMPONENTS ====================
+# ==================== PAGES ====================
 def render_home_page():
-    """Render the home page with high contrast"""
+    # Hero Section
     with st.container(border=True):
-        # Hero Section
-        col1, col2 = st.columns([1, 2])
+        col1, col2 = st.columns([1, 2.5], gap="large")
         
         with col1:
-            st.image("assets/photo.jpg", 
-                    use_container_width=True,
-                    caption="Data Analyst | Business Intelligence")
-        
+            # Menggunakan placeholder jika gambar tidak ada
+            if os.path.exists("assets/photo.jpg"):
+                st.image("assets/photo.jpg", use_container_width=True)
+            else:
+                st.image("https://api.dicebear.com/7.x/avataaars/svg?seed=Marsel&backgroundColor=4F46E5", use_container_width=True)
+                
         with col2:
             st.title("Marselinus Hindarto")
-            st.markdown("##### 🎯 Data Analyst | Business Intelligence Specialist")
-            st.markdown("##### 📍 Jakarta, Indonesia | Fresh Graduate")
-            
-            st.divider()
+            st.markdown("#### Data Analyst | Business Intelligence")
+            st.markdown("Jakarta, Indonesia")
             
             st.markdown("""
-            ### 👋 Hello!
+            I transform raw data into **actionable strategic insights**. Passionate about uncovering hidden patterns and building intuitive dashboards that drive data-informed business decisions.
+            """)
             
-            I'm a **passionate Data Analyst** with expertise in transforming raw data into 
-            **actionable insights**. My work focuses on:
-            
-            📊 **Building interactive dashboards**  
-            📈 **Time series forecasting**  
-            🔍 **Exploratory data analysis**  
-            
-            All to drive **data-informed business decisions**.
-            """)                
-        # Tech Stack
-        st.divider()
-        st.subheader("🛠️ Tech Stack")
-        
-        tech_cols = st.columns(4)
-        tech_stacks = {
-            "📊 **Data Analysis**": ["Python", "Pandas", "NumPy", "SQL"],
-            "📈 **Visualization**": ["Tableau", "Power BI", "Matplotlib", "Metabase"],
-            "🤖 **ML & Forecasting**": ["Scikit-learn", "Statsmodels", "ARIMA", "Prophet"],
-            "⚡ **Tools & Others**": ["Git", "Excel", "SQL Server", "PostMan"]
+            # Quick Stats Row
+            st.write("")
+            metric_cols = st.columns(3)
+            with metric_cols[0]: st.metric("Projects Completed", "3+", "Data Viz & ML")
+            with metric_cols[1]: st.metric("Tools Mastered", "8+", "SQL, Python, BI")
+            with metric_cols[2]: st.metric("Experience", "Entry-Level", "Eager to Impact")
+
+    # Tech Stack Section
+    st.markdown("###  Core Competencies")
+    with st.container(border=True):
+        cols = st.columns(4)
+        categories = {
+            "Data Visualization": ["Tableau", "Power BI", "Metabase", "Matplotlib"],
+            "Programming & Data": ["Python", "Pandas", "NumPy", "SQL"],
+            "Predictive ML": ["Scikit-learn", "ARIMA", "Prophet", "Statsmodels"],
+            "Tools & DB": ["Git", "Excel", "SQL Server", "PostgreSQL"]
         }
         
-        for idx, (category, tools) in enumerate(tech_stacks.items()):
-            with tech_cols[idx]:
-                st.markdown(category)
-                for tool in tools:
-                    st.markdown(f"• **{tool}**")
+        for idx, (cat, skills) in enumerate(categories.items()):
+            with cols[idx]:
+                st.markdown(f"**{cat}**")
+                tags_html = "".join([f'<span class="tech-tag">{skill}</span>' for skill in skills])
+                st.markdown(tags_html, unsafe_allow_html=True)
 
 def render_data_viz_page():
-    """Render data visualization projects page with high contrast"""
-    st.header("📊 Data Visualization Portfolio")
-    
-    # ==================== PROJECT 1: LOYALTY POINTS ====================
-    st.subheader("📋 Project 1: Loyalty Points Analytics")
-    
-    tab1_1, tab1_2, tab1_3 = st.tabs(["📖 Overview", "📈 Dashboard", "🎯 Insights"])
-    
-    with tab1_1:
-        with st.container(border=True):
-            st.markdown("### MyEraspace Loyalty Points Weekly Report")
-            st.markdown("""
-            **Comprehensive monitoring system** for loyalty points program to:
-            
-            ✅ **Optimize issuance and redemption strategies**  
-            ✅ **Minimize point expiration risks**  
-            ✅ **Maximize customer retention**  
-            ✅ **Improve program ROI**
-            """)
-            
-            # Tags with better contrast
-            tags = ["Tableau", "Dashboard", "Business Intelligence", "Retail", "Analytics"]
-            tag_html = "".join([f'<span class="tag">{tag}</span>' for tag in tags])
-            st.markdown(f'<div style="margin:20px 0">{tag_html}</div>', unsafe_allow_html=True)
-    
-    with tab1_2:
-        with st.container(border=True):
-            st.markdown("### 📊 Interactive Tableau Dashboard")
-            st.info("**Live Dashboard Embed** - Real-time data visualization. " 
-            "Tip: Use view in desktop layout for best experience.")
-            components.html("""
-            <iframe
-            src="https://public.tableau.com/views/Book1_17338886826920/Dashboard1?:showVizHome=no&:tabs=no"
-            width="100%" height="1200">
-            </iframe>
-            """, height=1200)
-    
-    with tab1_3:
-        with st.container(border=True):
-            st.markdown("### 🎯 Key Business Insights")
-            col1, col2 = st.columns(2)
-            with col1:
-                st.success("**✅ Key Finding 1: Point Expiration**")
-                st.markdown("""
-                **Issue:** Point expiration spikes identified in Week 15  
-                **Impact:** 30% above average expiration rate  
-                **Solution:** Automated alert system for expiration peaks
-                """)
-                st.metric("Affected Points", "1.2M", "30% increase", delta_color="inverse")
-            
-            with col2:
-                st.warning("**⚠️ Key Finding 2: Redemption Gap**")
-                st.markdown("""
-                **Issue:** Redemption rate only 42% of issuance  
-                **Opportunity:** 500K potential revenue increase  
-                **Action:** Targeted redemption campaigns
-                """)
-                st.metric("Redemption Rate", "42%", "-8% target", delta_color="inverse")
-    
-    st.divider()
-    
-    # ==================== PROJECT 2: BLACK PEPPER EXPORT ====================
-    st.subheader("🌍 Project 2: Indonesia Black Pepper Export Analysis")
-    
-    # SAMA PERSIS DENGAN PROJECT 1: 3 TABS
-    tab2_1, tab2_2, tab2_3 = st.tabs(["📖 Overview", "📈 Dashboard", "🎯 Insights"])
-    
-    # TAB 2.1: OVERVIEW
-    with tab2_1:
-        with st.container(border=True):
-            st.markdown("### Export Trend Analysis 2012-2024")
-            st.markdown("""
-            **Comprehensive analysis** of Indonesia's black pepper export patterns to:
-            
-            ✅ **Identify key international markets**  
-            ✅ **Optimize export strategies and pricing**  
-            ✅ **Maximize foreign exchange earnings**  
-            ✅ **Support agricultural policy decisions**
-            """)
-            
-            # Export Metrics
-            st.markdown("#### 📊 Export Performance Metrics")
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Total Export Value (2024)", "128M", "+12% YoY", 
-                         help="Total export value in 2024")
-            with col2:
-                st.metric("Top Destination", "Netherlands", "32% market share",
-                         help="Country with highest export volume")
-            with col3:
-                st.metric("Growth Rate", "8.5% CAGR", "2012-2024",
-                         help="Compound Annual Growth Rate")
-            
-            # Tags
-            tags = ["Tableau", "Export Analysis", "Time Series", "Agriculture", "International Trade"]
-            tag_html = "".join([f'<span class="tag">{tag}</span>' for tag in tags])
-            st.markdown(f'<div style="margin:20px 0">{tag_html}</div>', unsafe_allow_html=True)
-    
-    # TAB 2.2: DASHBOARD
-    with tab2_2:
-        with st.container(border=True):
-            st.markdown("### 📊 Interactive Export Dashboard")
-            st.info("**Live Tableau Dashboard** - Explore Indonesia's black pepper export trends. Tip: Use view in desktop layout for best experience.")
-            
-            # Your Tableau embed code with high contrast wrapper
-            components.html("""
-            <iframe
-            src="https://public.tableau.com/views/EksporLada/Dashboard1?:showVizHome=no&:tabs=no&:toolbar=yes"
-            width="100%"
-            height="900"
-            style="border:none;">
-            </iframe>
-            """, height=900)
-    
-    # TAB 2.3: INSIGHTS
-    with tab2_3:
-        with st.container(border=True):
-            st.markdown("### 🎯 Key Export Insights")
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.success("**✅ Key Finding 1: Market Concentration**")
-                st.markdown("""
-                **Finding:** Netherlands dominates with **32%** of total exports  
-                **Insight:** Strong EU foothold with established distribution  
-                **Opportunity:** Expand to Germany and France markets
-                """)
-                st.metric("Netherlands Market Share", "32%", "+5% from 2020", 
-                         help="Percentage of total exports to Netherlands")
-            
-            with col2:
-                st.warning("**⚠️ Key Finding 2: Seasonal Fluctuations**")
-                st.markdown("""
-                **Finding:** Q4 exports 35% higher than annual average  
-                **Insight:** Year-end harvest drives export volume  
-                **Action:** Optimize logistics for Q4 peak season
-                """)
-                st.metric("Q4 Export Premium", "+35%", "vs annual average", 
-                         help="Q4 export volume compared to annual average")
-            
-            st.divider()
-            
-            # Additional insights
-            st.markdown("#### 📈 Additional Findings")
-            
-            insight_cols = st.columns(3)
-            with insight_cols[0]:
-                st.markdown("""
-                **🌏 Emerging Markets**
-                - Vietnam imports grew 45% YoY
-                - China market potential: 25M
-                - ASEAN region: 15% CAGR
-                """)
-            
-            with insight_cols[1]:
-                st.markdown("""
-                **📊 Quality Trends**
-                - Premium grade: 22% price premium
-                - Organic segment: 18% growth
-                - Certified products: 30% demand increase
-                """)
-            
-            with insight_cols[2]:
-                st.markdown("""
-                **🚀 Growth Strategies**
-                - Diversify to 5 new markets
-                - Value-added products: +40% margin
-                - Digital export platforms
-                """)
-    
-    st.divider()
-    
-    # ==================== PROJECT 3: POWER BI SALES DASHBOARD ====================
-    st.subheader("🍺 Project 3: Heineken Sales Performance Dashboard")
-    
-    # SAMAKAN DENGAN STRUKTUR PROJECT 1 & 2
-    tab3_1, tab3_2, tab3_3 = st.tabs(["📖 Overview", "📈 Dashboard", "🎯 Insights"])
-    
-    # TAB 3.1: OVERVIEW
-    with tab3_1:
-        with st.container(border=True):
-            st.markdown("### Sales Performance Monitoring System")
-            st.markdown("""
-            **Comprehensive sales analytics platform** designed to:
-            
-            ✅ **Track real-time sales across 150+ stores**  
-            ✅ **Reduce manual reporting time by 25%**  
-            ✅ **Increase sales through data-driven decisions**  
-            ✅ **Automate KPI tracking for regional managers**
-            """)
-            
-            # Performance Metrics
-            st.markdown("#### 📊 Business Impact Metrics")
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Reporting Time Saved", "25%", "Weekly", 
-                         help="Reduction in manual reporting time")
-            with col2:
-                st.metric("Sales Increase", "15%", "Post-implementation",
-                         help="Increase in sales after dashboard adoption")
-            with col3:
-                st.metric("Store Coverage", "150+", "Nationwide",
-                         help="Number of stores covered by the dashboard")
-            
-            # Tags
-            tags = ["Power BI", "Sales Analytics", "Real-time", "FMCG", "Business Intelligence"]
-            tag_html = "".join([f'<span class="tag">{tag}</span>' for tag in tags])
-            st.markdown(f'<div style="margin:20px 0">{tag_html}</div>', unsafe_allow_html=True)
-    
-    # TAB 3.2: DASHBOARD
-    with tab3_2:
-        with st.container(border=True):
-            st.markdown("### 📊 Interactive Power BI Dashboard")
-            st.info("**Dashboard Screenshots** - Sales performance visualization")
-            
-            # Dashboard Images
-            if os.path.exists("assets/Dashboard1.png"):
-                st.markdown("#### Overview Dashboard")
-                st.image("assets/Dashboard1.png", 
-                        caption="**Sales Overview Dashboard** - Real-time metrics and KPI tracking",
-                        use_container_width=True)
-                
-                st.divider()
-                
-                st.markdown("#### Regional Analysis")
-                st.image("assets/Dashboard2.png", 
-                        caption="**Regional Performance Dashboard** - Sales by region and channel",
-                        use_container_width=True)
-            else:
-                st.info("""
-                **Dashboard preview would be displayed here**
-                
-                In a live deployment, actual Power BI dashboards or screenshots would be embedded
-                to show the interactive sales analytics platform.
-                """)
-    
-    # TAB 3.3: INSIGHTS
-    with tab3_3:
-        with st.container(border=True):
-            st.markdown("### 🎯 Key Sales Insights")
-            
-            col1, col2 = st.columns(2)           
-            with col1:
-                st.warning("**⚠️ Key Finding 1: Regional Disparity**")
-                st.markdown("""
-                **Finding:** Java contributes 65% of national sales  
-                **Insight:** Market concentration in Java region  
-                **Action:** Develop Eastern Indonesia growth strategy
-                """)
-                st.metric("Java Region Contribution", "65%", "of national sales", 
-                help="Percentage of total sales from Java region")
-            st.divider()
-            
-            # Additional insights
-            st.markdown("#### 📈 Additional Business Insights")
-            
-            insight_cols = st.columns(3)
-            with insight_cols[0]:
-                st.markdown("""
-                **📦 Product Performance**
-                - Product A: 35% revenue share
-                - Premium segment: 22% growth
-                - New products: 18% market penetration
-                """)
-            
-            with insight_cols[1]:
-                st.markdown("""
-                **🏪 Store Analytics**
-                - Top 10 stores: 40% of sales
-                - High-growth regions: +25% YoY
-                - Underperforming: 15 stores flagged
-                """)
-            
-            with insight_cols[2]:
-                st.markdown("""
-                **📅 Seasonal Patterns**
-                - Holiday sales: +50% peak
-                - Weekend vs weekday: 35% difference
-                - Promotional lift: 28% increase
-                """)
+    st.title("Data Visualization Portfolio")
+    st.markdown("Interactive dashboards showcasing business intelligence and data storytelling.")
+    st.write("")
 
+    # === PROJECT 1: LOYALTY POINTS ===
+    with st.container(border=True):
+        st.subheader("MyEraspace Loyalty Points Analytics")
+        tags = ["Tableau", "Retail", "Customer Retention", "KPI Tracking"]
+        st.markdown("".join([f'<span class="tech-tag">{tag}</span>' for tag in tags]), unsafe_allow_html=True)
+        st.write("")
+
+        tab1, tab2, tab3 = st.tabs(["Overview", "Interactive Dashboard", "Business Insights"])
+        
+        with tab1:
+            st.markdown("""
+            **Objective:** Build a comprehensive monitoring system to track loyalty point issuance, redemptions, and expiration risks.
+            - **Optimize** issuance and redemption campaigns
+            - **Minimize** point expiration friction for customers
+            - **Maximize** program ROI
+            """)
+            
+        with tab2:
+            st.info("**Pro Tip:** Switch to desktop layout inside Tableau for the best experience.")
+            components.html("""
+            <iframe src="https://public.tableau.com/views/Book1_17338886826920/Dashboard1?:showVizHome=no&:tabs=no" width="100%" height="850" style="border:none; border-radius: 12px;"></iframe>
+            """, height=850)
+            
+        with tab3:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.error("**Key Finding 1: Expiration Risk**")
+                st.write("**Issue:** Massive expiration spikes in Week 15 (30% above average).")
+                st.metric("Affected Points", "1.2M", "-30% Risk Potential")
+            with col2:
+                st.success("**Key Finding 2: Redemption Gap**")
+                st.write("**Opportunity:** Current redemption is only 42%. Targeted campaigns can unlock revenue.")
+                st.metric("Target Revenue Lift", "Rp 500M", "+8% Conversion")
+
+    st.write("")
+
+    # === PROJECT 2: BLACK PEPPER EXPORT ===
+    with st.container(border=True):
+        st.subheader("Indonesia Black Pepper Export Analysis")
+        tags = ["Tableau", "Time Series", "Agriculture Trade", "Geo-Analytics"]
+        st.markdown("".join([f'<span class="tech-tag">{tag}</span>' for tag in tags]), unsafe_allow_html=True)
+        st.write("")
+
+        tab1, tab2, tab3 = st.tabs(["Overview", "Interactive Dashboard", "Business Insights"])
+        
+        with tab1:
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Total Value (2024)", "$128M", "+12% YoY")
+            col2.metric("Top Market", "Netherlands", "32% Share")
+            col3.metric("Growth Rate", "8.5%", "CAGR")
+            
+        with tab2:
+            components.html("""
+            <iframe src="https://public.tableau.com/views/EksporLada/Dashboard1?:showVizHome=no&:tabs=no&:toolbar=yes" width="100%" height="850" style="border:none; border-radius: 12px;"></iframe>
+            """, height=850)
+            
+        with tab3:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.info("**Market Concentration**")
+                st.write("Netherlands holds 32% of total exports. **Action:** Leverage this hub to expand to neighboring EU countries like Germany and France.")
+            with col2:
+                st.warning("**Seasonal Fluctuations**")
+                st.write("Q4 exports surge 35% above the annual average due to harvest cycles. **Action:** Scale logistics proactively in Q3.")
+
+    st.write("")
+
+    # === PROJECT 3: HEINEKEN SALES DASHBOARD ===
+    with st.container(border=True):
+        st.subheader("Heineken Sales Performance Dashboard")
+        tags = ["Power BI", "Sales Analytics", "Real-time", "FMCG"]
+        st.markdown("".join([f'<span class="tech-tag">{tag}</span>' for tag in tags]), unsafe_allow_html=True)
+        st.write("")
+
+        tab1, tab2, tab3 = st.tabs(["Overview", "Dashboard Screens", "Business Insights"])
+        
+        with tab1:
+            st.markdown("""
+            **Objective:** Develop a comprehensive sales analytics platform for regional managers to track performance across nationwide stores.
+            - **Track** real-time sales across 150+ stores
+            - **Automate** reporting, reducing manual effort by 25%
+            - **Identify** high and low-performing regions instantly
+            """)
+            st.write("")
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Reporting Time Saved", "25%", "Weekly")
+            col2.metric("Sales Increase", "15%", "Post-implementation")
+            col3.metric("Store Coverage", "150+", "Nationwide")
+            
+        with tab2:
+            st.info("**Dashboard Previews:** Interactive elements are securely hosted on Power BI Service.")
+            
+            # Pengecekan apakah gambar ada di folder assets
+            if os.path.exists("assets/Dashboard1.png"):
+                st.image("assets/Dashboard1.png", caption="Sales Overview Dashboard - Real-time metrics and KPI tracking", use_container_width=True)
+                st.divider()
+                if os.path.exists("assets/Dashboard2.png"):
+                    st.image("assets/Dashboard2.png", caption="Regional Performance Dashboard - Sales by region and channel", use_container_width=True)
+            else:
+                # Placeholder keren jika gambar belum diupload
+                st.warning("**Images not found!** Please ensure `Dashboard1.png` and `Dashboard2.png` are placed inside the `assets/` folder.")
+                
+        with tab3:
+            st.warning("**Key Finding 1: Regional Disparity**")
+            st.write("**Insight:** The Java region dominates with **65% of national sales**, indicating heavy market concentration.")
+            st.metric("Java Contribution", "65%", "Action: Develop Eastern Indonesia strategy")
+            
+            st.divider()
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("""
+                **Product Performance**
+                - **Product A:** Generates 35% of total revenue.
+                - **Premium Segment:** Showing strong 22% YoY growth.
+                """)
+            with col2:
+                st.markdown("""
+                **Store Analytics**
+                - **Top 10 Stores:** Contribute to 40% of all sales.
+                - **Underperforming:** 15 stores flagged for immediate review.
+                """)
 def render_forecasting_page():
-    """Render forecasting projects page with high contrast"""
-    st.header("📈 Forecasting & Predictive Analytics")
+    st.title("Forecasting & Predictive Analytics")
+    st.markdown("Applying statistical models and machine learning to predict future trends.")
     
     with st.container(border=True):
-        st.subheader("🏍️ Motorcycle Population Forecasting - DKI Jakarta")
+        st.subheader("Motorcycle Population Forecast - DKI Jakarta")
+        st.write("Predicting urban mobility trends using Advanced Time Series Analysis (ARIMA) to aid infrastructure and policy planning.")
         
-        st.markdown("""
-        ### Project Overview
-        
-        **Objective:** Forecast motorcycle population growth to support:
-        - Transportation infrastructure planning
-        - Environmental impact assessment
-        - Policy development and regulation
-        - Economic opportunity identification
-        
-        **Methodology:** Advanced time series analysis using ARIMA modeling
-        with historical data from 2010-2023.
-        """)
-        
-        # Model Performance
         st.divider()
-        st.markdown("### 📊 Model Performance Metrics")
         
-        cols = st.columns(4)
+        cols = st.columns(3)
+        cols[0].metric("Model Architecture", "ARIMA (1,2,1)")
+        cols[1].metric("MAPE Score", "20%", "Normal")
+        cols[2].metric("Forecast Target (2023)", "17.98M Units", "+Trend")
         
-        metrics = [
-            ("Model Used", "ARIMA(1,2,1)", "Optimal parameters"),
-            ("MAPE Score", "20%", "Accurate"),
-            ("Forecast Horizon", "1 Years", "2023")
-        ]
-        
-        for idx, (title, value, help_text) in enumerate(metrics):
-            with cols[idx]:
-                st.metric(f"**{title}**", value, help=help_text)
-        
-        # Visualization
         st.divider()
-        st.markdown("### 📈 Forecast Results & Predictions")
         
-        if os.path.exists("assets/newplot.png"):
-            col1, col2 = st.columns([2, 1])
-            with col1:
-                st.image("assets/newplot.png", 
-                        caption="**5-Year Motorcycle Population Forecast** - DKI Jakarta",
-                        use_container_width=True)
-            with col2:
-                st.markdown("#### 🔮 Key Predictions")
-                st.success("**2023:** 17.98M units")
-                
-        
-        # Business Impact
-        st.divider()
-        st.markdown("### 💼 Business & Policy Implications")
-        
-        impact_cols = st.columns(3)
-        
-        with impact_cols[0]:
-            st.markdown("""
-            ### 🏗️ Infrastructure Planning
-            - Road capacity expansion needs
-            - Parking space requirements
-            - Traffic management systems
-            - Public transport integration
-            """)
-        
-        with impact_cols[1]:
-            st.markdown("""
-            ### 📋 Policy Development
-            - Vehicle registration strategies
-            - Emission control planning
-            - Safety regulations
-            - Insurance frameworks
-            """)
-        
-        with impact_cols[2]:
-            st.markdown("""
-            ### 💼 Business Opportunities
-            - Automotive market growth
-            - Aftermarket services demand
-            - Insurance product development
-            - Financing solutions
-            """)
-        
-        # Project Links
-        st.divider()
-        st.markdown("### 🔗 Project Resources & Documentation")
-        
-        col1, col2 = st.columns(2)
+        # Simulasi gambar grafik
+        col1, col2 = st.columns([2, 1])
         with col1:
-            st.link_button("📓 View Full Analysis on GitHub →", 
-                         "https://github.com/marsel366/sepedamotor-forecast/",
-                         use_container_width=True)
+            if os.path.exists("assets/newplot.png"):
+                st.image("assets/newplot.png", use_container_width=True, caption="5-Year Projection")
+            else:
+                st.info("Forecast visualization plot will be rendered here.")
+        
         with col2:
-            st.download_button(
-                label="📥 Download Technical Report →",
-                data="Simulated report content",
-                file_name="Motorcycle_Forecast_Report.pdf",
-                mime="application/pdf",
-                use_container_width=True
-            )
+            st.markdown("### Policy Impact")
+            st.markdown("""
+            -  **Infrastructure:** Urgent need for road capacity expansion.
+            -  **Environment:** Emission control & EV incentives required.
+            -  **Business:** Boom in aftermarket services & financing.
+            """)
+            
+            st.write("")
+            st.link_button(" View GitHub Repo", "https://github.com/marsel366/sepedamotor-forecast/", use_container_width=True)
 
-# ==================== MAIN APP ====================
+# ==================== MAIN APP ENGINE ====================
 def main():
-    """Main application function"""
-    # Load CSS
     load_css()
     
-    # Sidebar Configuration
     with st.sidebar:
-        # Logo/Header
+        # Custom Header Sidebar
         st.markdown("""
-        <div style="text-align: center; padding: 20px 0;">
-            <div style="font-size: 40px; margin-bottom: 10px; color: white;">📊</div>
-            <h2 style="margin: 0; color: #ffffff !important; font-weight: 900;">Marselinus Hindarto</h2>
-            <p style="color: #93c5fd; margin: 5px 0; font-weight: 600;">Data Analyst Portfolio</p>
-            <div style="background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%); height: 3px; width: 80px; margin: 10px auto; border-radius: 2px;"></div>
+        <div style="text-align: center; padding-bottom: 20px;">
+            <div style="background: linear-gradient(135deg, #4F46E5, #0D9488); height: 4px; width: 50px; margin: 0 auto 15px auto; border-radius: 2px;"></div>
+            <h2 style="margin: 0; font-size: 24px;">Marsel's Space</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 5px;">Data & Analytics</p>
         </div>
         """, unsafe_allow_html=True)
         
-        st.divider()
-        
-        # Navigation
-        st.markdown("### 🧭 Navigation")
+        # Navigation Options
         page = st.radio(
-            "Select Page:",
-            ["🏠 Home", "📊 Data Visualization", "📈 Forecasting"],
+            "Navigation",
+            ["Home", "Data Visualization", "Forecasting"],
             label_visibility="collapsed"
         )
         
         st.divider()
         
-        # Dark Mode Toggle
+        # Toggle Dark Mode
         st.session_state.dark_mode = st.toggle(
             "🌙 Dark Mode",
-            value=st.session_state.dark_mode,
-            help="Toggle between light and dark themes"
+            value=st.session_state.dark_mode
         )
         
         st.divider()
-        
-        # Social Links
         render_social_links()
-        
-        st.divider()
         
         # Footer
         st.markdown("""
-        <div style="text-align: center; padding: 20px 0;">
-            <p style="color: #94a3b8; font-size: 12px; margin: 5px 0;">
-                Built with ❤️ using <strong style="color: #ff4b4b;">Streamlit</strong>
-            </p>
-            <p style="color: #94a3b8; font-size: 12px; margin: 5px 0;">
-                © 2024 Marsel Portfolio | All Rights Reserved
-            </p>
+        <div style="text-align: center; margin-top: 40px;">
+            <p style="color: #64748B; font-size: 12px;">Crafted using Streamlit<br/>© 2026 Marselinus Hindarto</p>
         </div>
         """, unsafe_allow_html=True)
-    
-    # Page Routing
-    page_functions = {
-        "🏠 Home": render_home_page,
-        "📊 Data Visualization": render_data_viz_page,
-        "📈 Forecasting": render_forecasting_page
-    }
-    
-    # Render selected page
-    if page in page_functions:
-        page_functions[page]()
 
-# ==================== RUN APP ====================
+    # Router
+    if page == "Home":
+        render_home_page()
+    elif page == "Data Visualization":
+        render_data_viz_page()
+    elif page == "Forecasting":
+        render_forecasting_page()
+
 if __name__ == "__main__":
     main()
