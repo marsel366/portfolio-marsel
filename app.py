@@ -156,7 +156,7 @@ def load_css():
     .stTabs [data-baseweb="tab"] {
         height: 44px; background-color: transparent !important;
         border-radius: 10px 10px 0 0 !important; padding: 8px 20px !important;
-        color: var(--text-muted) !important; font-weight: 600 !important; border: none !important;
+        color: var(--primary-dark) !important; font-weight: 600 !important; border: none !important;
     }
     .stTabs [data-baseweb="tab"]:hover {
         color: var(--primary-dark) !important; background: rgba(141, 169, 196, 0.06) !important;
@@ -570,12 +570,12 @@ def render_data_viz_page():
             c1, c2 = st.columns(2)
             with c1:
                 st.error("**Key Finding 1: Massive Issuance Surge**")
-                st.write("**Issue:** Average points issued spiked significantly starting at W39, peaking well over 2 Billion by W43.[cite: 1]")
+                st.write("**Issue:** Average points issued spiked significantly starting at W39, peaking well over 2 Billion by W43.")
                 st.metric("Peak Points Issued (W43)", "> 2B", "High Liability")
 
             with c2:
                 st.success("**Key Finding 2: Severe Redemption Gap**")
-                st.write("**Opportunity:** Despite the massive surge in points issued, average points redeemed remained stagnant, hovering steadily below 0.5 Billion across all weeks.[cite: 1]")
+                st.write("**Opportunity:** Despite the massive surge in points issued, average points redeemed remained stagnant, hovering steadily below 0.5 Billion across all weeks.")
                 st.metric("Max Points Redeemed", "< 0.5B", "Engagement Opportunity")
 
                 st.write("")
@@ -603,7 +603,7 @@ def render_data_viz_page():
                 st.info("**Market Concentration**")
                 st.write("Netherlands holds 32% of total exports. **Action:** Leverage this hub to expand to neighboring EU countries.")
             with c2:
-                st.warning("**Seasonal Fluctuations**")
+                st.info("**Seasonal Fluctuations**")
                 st.write("Q4 exports surge 35% above annual average. **Action:** Scale logistics proactively in Q3.")
 
     st.write("")
@@ -642,7 +642,7 @@ def render_data_viz_page():
             else:
                 st.warning("**Images not found!** Place `Dashboard1.png` and `Dashboard2.png` inside `assets/`.")
         with tab3:
-            st.warning("**Key Finding 1: Regional Disparity**")
+            st.info("**Key Finding 1: Regional Disparity**")
             st.write("**Insight:** The Java region dominates with **65% of national sales**.")
             st.metric("Java Contribution", "65%", "Action: Develop Eastern Indonesia strategy")
             st.divider()
