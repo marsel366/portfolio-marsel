@@ -11,8 +11,6 @@ st.set_page_config(
 )
 
 # ==================== SESSION STATE ====================
-if 'dark_mode' not in st.session_state:
-    st.session_state.dark_mode = False
 if 'page' not in st.session_state:
     st.session_state.page = "Home"
 
@@ -210,35 +208,8 @@ def load_css():
     </style>
     """
 
-    dark_css = """
-    <style>
-    :root {
-        --bg-main: #1C1F26; --bg-card: #252A33; --bg-elevated: #2D323C;
-        --text-main: #E8E2D8; --text-muted: #A8A296;
-        --border-color: #3A4048; --border-soft: #2F343D;
-        --primary: #A8C0D6; --primary-dark: #C4D4E3;
-        --secondary: #B8C4B0; --accent: #D4B59A;
-        --shadow-md: 0 4px 20px -4px rgba(0,0,0,0.35);
-        --shadow-lg: 0 20px 40px -12px rgba(0,0,0,0.45);
-    }
-    h1, h2, h3, h4, h5, h6 { color: #E8E2D8 !important; }
-    [data-testid="stVerticalBlockBorderWrapper"] {
-        background: linear-gradient(145deg, #252A33, #1F232B) !important;
-    }
-    [data-testid="stVerticalBlockBorderWrapper"]:hover { border-color: var(--primary) !important; }
-    .tech-tag {
-        background: rgba(168, 192, 214, 0.12); color: var(--primary);
-        border-color: rgba(168, 192, 214, 0.25);
-    }
-    </style>
-    """
-
     st.markdown(light_css, unsafe_allow_html=True)
-    if st.session_state.dark_mode:
-        st.markdown(dark_css, unsafe_allow_html=True)
-
-
-# ==================== NAVBAR ====================
+    # ==================== NAVBAR ====================
 def render_navbar():
     """Navbar via iframe. Komunikasi via postMessage ke parent."""
     pages = [
@@ -255,19 +226,10 @@ def render_navbar():
             f'<span>{icon}</span><span>{name}</span>'
             f'<span class="dot"></span></a>'
         )
-
-    theme_icon = "" if st.session_state.dark_mode else ""
-    is_dark = st.session_state.dark_mode
-
-    if is_dark:
-        navbar_bg = "rgba(28, 31, 38, 0.85)"
-        border_soft = "#2F343D"; border_color = "#3A4048"
-        ink = "#E8E2D8"; ink_soft = "#A8A296"; ink_muted = "#7A7568"
-        card_bg = "#252A33"; nav_links_bg = "rgba(58, 64, 72, 0.6)"; dot_color = "#A8C0D6"
-    else:
+    
         navbar_bg = "rgba(250, 247, 242, 0.85)"
         border_soft = "#F0EAE0"; border_color = "#E8E2D8"
-        ink = "#3A4A5C"; ink_soft = "#6B7B8C"; ink_muted = "#95A3B3"
+        ink = "#191B1E"; ink_soft = "#183759"; ink_muted = "#95A3B3"
         card_bg = "#FFFFFF"; nav_links_bg = "rgba(232, 226, 216, 0.4)"; dot_color = "#8DA9C4"
 
     navbar_html = f"""
@@ -367,7 +329,6 @@ def render_navbar():
                 <a class="icon-btn" href="https://github.com/marsel366" target="_blank" title="GitHub">🐙</a>
                 <a class="icon-btn" href="https://public.tableau.com/app/profile/marselinus.hindarto/vizzes" target="_blank" title="Tableau">📊</a>
                 <div class="divider-v"></div>
-                <button class="icon-btn" onclick="sendTheme()" title="Toggle theme">{theme_icon}</button>
             </div>
         </div>
 
@@ -415,9 +376,6 @@ def render_hidden_triggers():
         st.session_state.page = "Forecasting"
         st.rerun()
 
-    if st.button("theme", key="_btn_nav_theme"):
-        st.session_state.dark_mode = not st.session_state.dark_mode
-        st.rerun()
 
 
 # ==================== PARENT LISTENER (JS) ====================
