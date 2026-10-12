@@ -156,7 +156,7 @@ def load_css():
     .stTabs [data-baseweb="tab"] {
         height: 44px; background-color: transparent !important;
         border-radius: 10px 10px 0 0 !important; padding: 8px 20px !important;
-        color: #3A4A5C !important; font-weight: 600 !important; border: none !important;
+        color: #3A4A5C !important; border: none !important;
     }
     .stTabs [data-baseweb="tab"]:hover {
         color: #3A4A5C !important; background: rgba(141, 169, 196, 0.06) !important;
