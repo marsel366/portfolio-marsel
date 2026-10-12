@@ -152,7 +152,7 @@ def load_css():
         font-size: 0.8rem !important; text-transform: uppercase; letter-spacing: 0.08em;
     }
 
-    .stTabs [data-baseweb="tab-list"] { gap: 8px; border-bottom: 1px solid var(--border-color) !important; }
+    .stTabs [data-baseweb="tab-list"] { gap: 8px; border-bottom: 1px solid var(--primary-dark) !important; }
     .stTabs [data-baseweb="tab"] {
         height: 44px; background-color: transparent !important;
         border-radius: 10px 10px 0 0 !important; padding: 8px 20px !important;
