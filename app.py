@@ -156,13 +156,13 @@ def load_css():
     .stTabs [data-baseweb="tab"] {
         height: 44px; background-color: transparent !important;
         border-radius: 10px 10px 0 0 !important; padding: 8px 20px !important;
-        color: var(--primary-dark) !important; font-weight: 600 !important; border: none !important;
+        color: #3A4A5C !important; font-weight: 600 !important; border: none !important;
     }
     .stTabs [data-baseweb="tab"]:hover {
-        color: var(--primary-dark) !important; background: rgba(141, 169, 196, 0.06) !important;
+        color: #3A4A5C !important; background: rgba(141, 169, 196, 0.06) !important;
     }
     .stTabs [aria-selected="true"] {
-        color: var(--primary-dark) !important; background: rgba(141, 169, 196, 0.08) !important;
+        color: #3A4A5C !important; background: rgba(141, 169, 196, 0.08) !important;
     }
     .stTabs [data-baseweb="tab-highlight"] { background-color: var(--primary-dark) !important; height: 2px !important; }
     .stTabs [data-baseweb="tab-border"] { display: none; }
